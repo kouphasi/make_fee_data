@@ -1,4 +1,11 @@
+from hashlib import new
 import openpyxl as opxl
+from unicodedata import name
+import openpyxl as opxl
+import openpyxl
+import math
+from action.indiv_fee import indiv_fee
+import datetime
 
 wb = opxl.load_workbook(r"money_data.xlsx",data_only=True)
 
@@ -29,12 +36,29 @@ for i in range(2,53):
         }
     )
 
-member_number = member_ws["c66"]
+member_number = member_ws["c66"].value
 
-print(member_list)
-print(fee_dict)
+# print(member_list)
+# print(fee_dict)
+
+new_wb = opxl.Workbook()
+payment_ws = new_wb["Sheet"]
+payment_ws.title="支払い名簿"
+
+for member in member_list:
+    member["料金徴収"] = indiv_fee(new_wb,fee_dict,member,member_number)
 
 
-# ws_new = wb.create_sheet(title="")
+payment_ws["a1"] = "学年"
+payment_ws["b1"] = "名前"
+payment_ws["c1"] = "金額"
 
-# wb.save(r"money_data.xlsx")
+for index,member in enumerate(member_list,2):
+    grade = member["学年"]
+    payment_ws[f"a{index}"] = grade
+    payment_ws[f"b{index}"] = member["名前"]
+    payment_ws[f"c{index}"] = member["料金徴収"]
+    
+new_wb.save(f"{datetime.date.today()}-明細表.xlsx")
+
+wb.save(r"money_data.xlsx")
