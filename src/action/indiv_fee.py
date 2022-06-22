@@ -38,28 +38,30 @@ def indiv_fee(wb:openpyxl.Workbook,fee_dict:dict, member:dict,number:int):
 
     sum = fee_hotel + fee_conference + fee_bath + fee_bus
 
-    if attend_day == 6:
-        if grade < 2:
-            fee = 47000
-            fee_event = 0
+    fee_event = 0
+    fee_flag = "なし"
+
+    if attend_day > 0:
+        if attend_day == 6:
+            if grade < 2:
+                fee = 47000
+                fee_event = 0
+            else:
+                fee = 60000
+                fee_event = fee - fee_hotel - fee_conference - fee_bath - fee_bus
         else:
-            fee = 60000
-            fee_event = fee - fee_hotel - fee_conference - fee_bath - fee_bus
-    else:
-        if grade < 2:
-            fee = sum
-            fee_event = 0
+            if grade < 2:
+                fee = sum
+                fee_event = 0
+            else:
+                fee_event = fee_event_1
+                fee = sum + fee_event
+
+        if fee_event:
+            fee_flag = "あり"
         else:
-            fee_event = fee_event_1
-            fee = sum + fee_event
-
-    if fee_event:
-        fee_flag = "あり"
-    else:
-        fee_flag = "なし"
-
-    fee += fee_insurance
-
+            fee_flag = "なし"
+        fee += fee_insurance
     final_fee = math.ceil(fee/100)*100
 
     ws = wb.create_sheet(title=member["名前"])
